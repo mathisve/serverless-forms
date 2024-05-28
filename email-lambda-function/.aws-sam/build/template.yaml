@@ -1,0 +1,52 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'serverless-email-form
+
+  Sample SAM Template for serverless-email-form
+
+  '
+Globals:
+  Function:
+    Timeout: 5
+    MemorySize: 128
+    LoggingConfig:
+      LogFormat: JSON
+Resources:
+  EmailFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      Architectures:
+      - x86_64
+      Events:
+        CatchAll:
+          Type: HttpApi
+          Properties:
+            Path: /email
+            Method: POST
+      Environment:
+        Variables:
+          DB_URL: postgresql://neondb_owner:1BifCQadUg6D@ep-winter-mud-a5971jal.us-east-2.aws.neon.tech/neondb?sslmode=require
+      ImageUri: emailfunction:go1.x-v1
+    Metadata:
+      DockerContext: /Users/mathis/Developer/serverless-email-form/email
+      DockerTag: go1.x-v1
+      Dockerfile: Dockerfile
+      SamResourceId: EmailFunction
+Outputs:
+  EmailAPI:
+    Description: API Gateway endpoint URL for Prod environment for First Function
+    Value:
+      Fn::Sub: https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/email/
+  EmailFunction:
+    Description: First Lambda Function ARN
+    Value:
+      Fn::GetAtt:
+      - EmailFunction
+      - Arn
+  EmailFunctionIamRole:
+    Description: Implicit IAM Role created for Email function
+    Value:
+      Fn::GetAtt:
+      - EmailFunctionRole
+      - Arn
